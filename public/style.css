@@ -1,0 +1,250 @@
+* {
+  box-sizing: border-box;
+}
+
+html, body {
+  font-family: "Helvetica Neue", Helvetica, Arial, sans-serif;
+  min-height: 100%;
+  width: 100%;
+  margin: 0;
+  padding: 0;
+}
+
+#game {
+  /* padding: 20px; */
+}
+
+#scoreboard {
+  padding: 0;
+  min-height: 100%;
+  background: #fefefe;
+}
+
+
+body, input, select, button {
+  font-size: 18px;
+  line-height: 18px;
+}
+
+ul {
+  padding-left: 0;
+}
+
+ul * {
+  -webkit-transition: -webkit-transform 1s ease-in-out;
+  -moz-transition: -moz-transform 1s ease-in-out;
+  -o-transition: -o-transform 1s ease-in-out;
+  -ms-transition: -ms-transform 1s ease-in-out;
+  transition: transform 1s ease-in-out;
+}
+
+li {
+  display: block;
+  list-style: none;
+  width: 110px;
+  height: 110px;
+  position: relative;
+  margin: 10px;
+  float: left;
+}
+
+li div {
+  height: 110px;
+  width: 110px;
+  border-radius: 100px;
+  border: 5px solid white;
+}
+
+li img {
+  position: absolute;
+}
+
+img {
+  border-radius: 100px;
+}
+
+.hide {
+  -webkit-transform: rotate(1440deg) scale(0);
+  -moz-transform: rotate(1440deg) scale(0);
+  -o-transform: rotate(1440deg) scale(0);
+  -ms-transform: rotate(1440deg) scale(0);
+  transform: rotate(1440deg) scale(0);
+}
+
+li span {
+  display: none;
+  position: absolute;
+  z-index: 1;
+  bottom: 0;
+  background: rgba(255, 255, 255, 0.7);
+  padding: 3px;
+  width: 100%;
+  text-shadow: 1px 1px 4px #ccc;
+}
+
+.uploadwrapper {
+  position: relative;
+  display: inline-block;
+  cursor: pointer;
+}
+
+.uploadwrapper #upload {
+  /*opacity: 0;*/
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  cursor: pointer;
+}
+
+.uploadwrapper button {
+  pointer-events: none;
+}
+
+#name {
+  border: 0;
+  border-bottom: 2px solid rgba(33, 150, 243, 0.5);
+  line-height: 20px;
+  margin-top: 20px;
+  font-size: 24px;
+  outline: none;
+}
+
+#name:focus {
+  border-bottom: 2px solid rgb(33, 150, 243);
+}
+
+#mug {
+  position: relative;
+  color: rgb(255, 255, 255);
+  background: rgb(33, 150, 243);
+  border: 0;
+  font-family: sans-serif;
+  font-weight: 200;
+  padding: 15px;
+  vertical-align: bottom;
+  position: relative;
+  z-index: 1;
+  margin: 0;
+  cursor: pointer;
+}
+
+/*html.dnd {
+  background: #aaa;
+}
+
+html.dnd:after {
+  color: white;
+  font-size: 5vh;
+  margin: 20% 10%;
+  display: block;
+  font-family: sans-serif;
+  text-align: center;
+  content: 'Drop an image anywhere on the page...';
+}
+
+html.dnd > * {
+  display: none;
+}
+*/
+[hidden] {
+  display: none !important;
+}
+
+.holder {
+  background: #aaa url(22.gif) no-repeat center;
+  height: 100px;
+  width: 100px;
+}
+
+.players {
+  position: absolute;
+  right: 0;
+  top: 0;
+  color: #fefefe;
+  padding: 6px 10px;
+  background: #2ECC40;
+  font-size: 0.8rem;
+  font-weight: 200;
+}
+
+.players span {
+  font-weight: 600;
+  font-size: 0.8rem;
+  line-height: 0.8rem;
+  display: block;
+  color: rgb(199, 235, 59);
+}
+
+#score {
+  color: #fff;
+}
+
+table {
+  border-collapse: collapse;
+  width: 100%;
+}
+
+table td {
+  width: 100%;
+  font-size: 90px;
+  vertical-align: top;
+  line-height: 100px;
+  background: red;
+  color: white;
+  padding: 20px;
+}
+
+tbody:empty:after {
+  color: white;
+  font-size: 5vh;
+  margin: 10%;
+  display: block;
+  font-family: sans-serif;
+  text-align: center;
+  content: 'Waiting for players...';
+  background: rgb(117, 138, 227);
+  padding: 20% 0%;
+  line-height: 5vh;
+  border-radius: 40px;
+  text-shadow: 0px -1px 1px rgb(26, 26, 163);
+}
+
+#players:empty:after {
+  color: white;
+  font-size: 4vh;
+  margin: 50px 10%;
+  display: block;
+  font-family: sans-serif;
+  text-align: center;
+  content: 'Instructions: upload a picture of yourself, and hit the faces that have the *same colour* ring around them as you for points. Failure will result in negative points!';
+  background: rgb(117, 138, 227);
+  padding: 20% 10%;
+  line-height: 5vh;
+  border-radius: 40px;
+  text-shadow: 0px -1px 1px rgb(26, 26, 163);
+}
+
+td img {
+  vertical-align: text-bottom;
+}
+
+#warning {
+  position: fixed;
+  width: 100%;
+  bottom: -100%;
+  background: #FF4136;
+  padding: 0.8rem 1rem;
+  color: white;
+  line-height: 1.8rem;
+  -webkit-transition: bottom 200ms ease-out;
+  -moz-transition: bottom 200ms ease-out;
+  -o-transition: bottom 200ms ease-out;
+  -ms-transition: bottom 200ms ease-out;
+  transition: bottom 200ms ease-out;
+}
+
+#warning.show {
+  bottom: 0;
+}

@@ -1,0 +1,42 @@
+<!DOCTYPE html>
+<title>@rem's game</title>
+<style>
+html, body {
+  font-family: "Helvetica Neue", Helvetica, Arial, sans-serif;
+  min-height: 100%;
+  width: 100%;
+  margin: 0;
+  padding: 0;
+}
+
+body {
+  padding: 20px;
+}
+
+body, input, select {
+  font-size: 18px;
+  line-height: 18px;
+}
+
+html.dnd {
+  background: #aaa;
+}
+
+html.dnd:after {
+  color: white;
+  font-size: 5vh;
+  margin: 20% 10%;
+  display: block;
+  font-family: sans-serif;
+  text-align: center;
+  content: 'Drop an image anywhere on the page...';
+}
+
+html.dnd > * {
+  display: none;
+}
+
+</style>
+<script src="//code.jquery.com/jquery-2.1.1.min.js"></script>
+<input type="file">
+<script src="main.js"></script>
