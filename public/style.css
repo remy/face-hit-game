@@ -211,21 +211,6 @@ tbody:empty:after {
   text-shadow: 0px -1px 1px rgb(26, 26, 163);
 }
 
-#players:empty:after {
-  color: white;
-  font-size: 4vh;
-  margin: 50px 10%;
-  display: block;
-  font-family: sans-serif;
-  text-align: center;
-  content: 'Instructions: upload a picture of yourself, and hit the faces that have the *same colour* ring around them as you for points. Failure will result in negative points!';
-  background: rgb(117, 138, 227);
-  padding: 20% 10%;
-  line-height: 5vh;
-  border-radius: 40px;
-  text-shadow: 0px -1px 1px rgb(26, 26, 163);
-}
-
 td img {
   vertical-align: text-bottom;
 }

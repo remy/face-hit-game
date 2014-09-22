@@ -49,3 +49,4 @@ $('#upload').on('change', function () {
   readfile(this.files[0]);
 });
 
+alert('Instructions:\n1. Upload your face.\n2. You get a get colour.\n3. Score points by hitting the faces with same colour ring.');
