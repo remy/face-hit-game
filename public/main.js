@@ -32,7 +32,7 @@ function readfile(file) {
   reader.readAsDataURL(file);
 }
 
-$('#players').on('touchstart click', 'li', function (e) {
+$('#players').on('touchend click', 'li', function (e) {
   e.preventDefault();
   var $div = $(this).find('div');
   if (!$div.is('.hide')) {

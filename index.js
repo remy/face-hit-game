@@ -146,7 +146,7 @@ primus.on('connection', function(spark) {
       return;
     }
     if (activeUsers[id]) {
-      if (activeUsers[user].recent.indexOf(id) !== -1) {
+      if (activeUsers[user].recent === id) {
         spark.emit('warning', 'You can\'t hit that face again for a while...');
       } else
 
@@ -170,7 +170,13 @@ primus.on('connection', function(spark) {
       }
 
       // keep most recent 3 hits
-      activeUsers[user].recent = [id]; //.concat(activeUsers[user].recent.slice(0, 2));
+      clearTimeout(activeUsers[user].recentTimer);
+      activeUsers[user].recent = id; //.concat(activeUsers[user].recent.slice(0, 2));
+      setTimeout(function () {
+        if (activeUsers[user].recent === id) {
+          delete activeUsers[user].recent;
+        }
+      }, 5000);
 
     } else {
       activeUsers[user].score--;

@@ -7,7 +7,8 @@ function updateTable() {
   var $scores = scores.sort(function (a, b) {
     return b.score - a.score;
   }).map(function (user) {
-    var $user = $('#user-' + user.id).data('score', user.score);
+    var $user = $('#user-' + user.id);
+    if ($user.length) $user.get(0).dataset.score = user.score;
     $user.find('span').html(user.score);
     return $user.parent();
   });
@@ -19,7 +20,7 @@ function getScoresFromTable() {
   scores = $('td').map(function () {
     return {
       id: this.id.replace(/^user-/, ''),
-      score: this.dataset.score
+      score: this.dataset.score * 1
     }
   }).get();
 }
@@ -50,7 +51,7 @@ primus.on('user', function (data) {
   $('tbody').append('<tr><td style="background-color: ' + data.colour + '" id="user-' + data.id + '" data-score="' + (data.score || 0) + '"><img src="' + src + '"> <span>' + (data.score || 0) + '</span></td></tr>');
   scores.push({
     id: data.id,
-    score: data.score,
+    score: data.score * 1,
   });
   updateTable();
 });

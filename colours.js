@@ -11,7 +11,7 @@ var colours = [
 'orange   #FF851B'.split(' ').slice(-1).pop(),
 // 'red      #FF4136'.split(' ').slice(-1).pop(),
 // 'fuchsia  #F012BE'.split(' ').slice(-1).pop(),
-'purple   #B10DC9'.split(' ').slice(-1).pop(),
+// 'purple   #B10DC9'.split(' ').slice(-1).pop(),
 // 'maroon   #85144B'.split(' ').slice(-1).pop(),
 ];
 
