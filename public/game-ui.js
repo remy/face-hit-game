@@ -62,6 +62,10 @@ function confirmHit(id) {
   }, 5000);
 }
 
+function updateColour(colour) {
+  $('#colour').html(colour).parent().css('background-color', colour).removeAttr('hidden');
+}
+
 function remove(id) {
   $('#user-' + id + ' img:last').attr('id', 'removed-' + id).addClass('hide');
   setTimeout(function () {

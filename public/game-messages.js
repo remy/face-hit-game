@@ -21,6 +21,9 @@ primus.on('users', function (users) {
   Object.keys(users).forEach(function (id) {
     var src = users[id].image || LZString.decompressFromUTF16(users[id].compressed);
     $('#user-' + id).html('<div style="border-color: ' + users[id].colour +'"><img src="' + src + '"></div>');
+    if (id === myid) {
+      updateColour(users[id].colour);
+    }
   });
 });
 
@@ -29,7 +32,6 @@ primus.on('remove', function (id) {
   setTimeout(function () {
      $('#user-' + id).remove();
   }, 1000);
-
 });
 
 primus.on('score', function (score) {
@@ -42,6 +44,9 @@ primus.on('count', function (count) {
 
 primus.on('colour', function (data) {
   $('#user-' + data.id).find('div').css('border-color', data.colour);
+  if (data.id === myid) {
+    updateColour(data.colour);
+  }
 });
 
 /*

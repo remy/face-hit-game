@@ -123,6 +123,9 @@ primus.on('connection', function(spark) {
   if (!user) {
     user = req.session.user = uuid.v4();
     req.session.save(); // force a save
+  } else if (activeUsers[user]) {
+    // update the spark pointer
+    activeUsers[user].sparkId = spark.id;
   }
 
   updateCount();
@@ -155,6 +158,10 @@ primus.on('connection', function(spark) {
       if (activeUsers[id].colour === activeUsers[user].colour) {
         activeUsers[user].score++;
         spark.emit('hit', id); // ack
+
+        activeUsers[id].colour = colours();
+        broadcast('colour', { colour: activeUsers[id].colour, id: id });
+        primus.spark(activeUsers[id].sparkId).emit('warning', 'You got hit - so your colour has changed!');
       }
 
       else {
@@ -195,6 +202,7 @@ primus.on('connection', function(spark) {
 
     if (!activeUsers[user]) {
       activeUsers[user] = {
+        sparkId: spark.id,
         id: user,
         recent: [],
         compressed: data.compressed,

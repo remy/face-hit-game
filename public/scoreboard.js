@@ -41,7 +41,6 @@ primus.on('reset', function (event) {
 });
 
 primus.on('scoreboard', function (event) {
-  var latest = event.latest;
   scores = event.scores;
   updateTable();
 });
@@ -49,7 +48,10 @@ primus.on('scoreboard', function (event) {
 primus.on('user', function (data) {
   var src = data.image || LZString.decompressFromUTF16(data.compressed);
   $('tbody').append('<tr><td style="background-color: ' + data.colour + '" id="user-' + data.id + '" data-score="' + (data.score || 0) + '"><img src="' + src + '"> <span>' + (data.score || 0) + '</span></td></tr>');
-  getScoresFromTable();
+  scores.push({
+    id: data.id,
+    score: data.score,
+  });
   updateTable();
 });
 
