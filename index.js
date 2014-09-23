@@ -137,7 +137,7 @@ primus.on('connection', function(spark) {
         broadcast('remove', user, spark);
         updateCount();
       }
-    }, 500);
+    }, 1500);
   });
 
   spark.on('hit', function (id) {
