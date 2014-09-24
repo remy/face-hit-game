@@ -5,6 +5,7 @@ var uuid = require('node-uuid');
 var Primus = require('primus');
 var cookieParser = require('cookie-parser');
 var expressSession = require('express-session');
+var url = require('url');
 var hbs = require('hbs');
 var bodyParser = require('body-parser');
 var colours = require('./colours');
@@ -20,10 +21,6 @@ var session = expressSession({
   resave: true,
   saveUninitialized: true,
   secret: secret
-});
-
-var primus = new Primus(server, {
-  transformer: 'websockets'
 });
 
 var activeUsers = {};
@@ -69,8 +66,22 @@ server.listen(process.env.PORT || 8000);
 
 // -------------- PRIMUS ----------------
 
+var redisURL = url.parse(process.env.REDISCLOUD_URL || 'localhost:1234');
+
+var primus = new Primus(server, {
+  transformer: 'websockets',
+  cluster: {
+    redis: {
+      port: redisURL.port,
+      host: redisURL.hostname,
+      connect_timeout: 200
+    }
+  }
+});
+
 primus.use('emit', require('primus-emit'));
 primus.use('spark-latency', require('primus-spark-latency'));
+primus.use('cluster', require('primus-cluster'));
 
 // use cookie and cookie-session middleware
 primus.before('cookies', cookies);
