@@ -173,7 +173,7 @@ primus.on('connection', function(spark) {
       clearTimeout(activeUsers[user].recentTimer);
       activeUsers[user].recent = id; //.concat(activeUsers[user].recent.slice(0, 2));
       setTimeout(function () {
-        if (activeUsers[user].recent === id) {
+        if (activeUsers[user] && activeUsers[user].recent === id) {
           delete activeUsers[user].recent;
         }
       }, 5000);
