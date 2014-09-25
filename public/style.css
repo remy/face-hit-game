@@ -10,6 +10,17 @@ html, body {
   padding: 0;
 }
 
+html:after {
+  color: #efefef;
+  font-size: 10vh;
+  margin: 35vh 10%;
+  display: block;
+  font-family: sans-serif;
+  text-align: center;
+  content: 'port ' attr(id);
+  text-shadow: 0px -1px 1px #ccc;
+}
+
 #game {
   /* padding: 20px; */
 }

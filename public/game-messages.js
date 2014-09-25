@@ -4,6 +4,10 @@ $(window).unload(function () {
   primus.end();
 });
 
+primus.on('data', function (data) {
+  console.log('data', data);
+})
+
 primus.on('warning', showWarning);
 primus.on('hit', confirmHit);
 primus.on('user', adduser);

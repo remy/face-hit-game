@@ -9,8 +9,13 @@ var url = require('url');
 var hbs = require('hbs');
 var bodyParser = require('body-parser');
 var colours = require('./colours');
-var store = new expressSession.MemoryStore();
+// var store = new expressSession.MemoryStore();
+var rtg = require('url').parse(process.env.REDISTOGO_URL || 'redis://localhost:6379');
+var redis = require('redis').createClient(rtg.port, rtg.hostname);
+var redisStore = require('connect-redis')(expressSession);
+var store = new redisStore({ client: redis });
 var lzString = require('./public/lz-string');
+
 
 var app = express();
 var server = require('http').createServer(app);
@@ -23,8 +28,18 @@ var session = expressSession({
   secret: secret
 });
 
+hbs.registerHelper('decompress', function(image) {
+  return lzString.decompressFromUTF16(image);
+});
+
+var port = process.env.PORT || 8000;
+
 var activeUsers = {};
-var images = {};
+// var images = {};
+
+redis.get('activeUsers', function (err, data) {
+  activeUsers = JSON.parse(data || '{}');
+});
 
 // all environments
 app.set('views', 'views');
@@ -39,17 +54,19 @@ app.use(session);
 app.get('/', function (req, res) {
   res.render('index', {
     title: 'game',
-    name: req.session.name
+    name: req.session.name,
+    serverId: port,
   });
 });
 
 app.get('/scores', function (req, res) {
   req.session.wantsScores = true;
   res.render('scores', {
+    serverId: port,
     title: 'scoreboard',
     activeUsers: Object.keys(activeUsers).map(function (id) {
       return {
-        image: images[id],
+        compressed: activeUsers[id].compressed,
         score: activeUsers[id].score,
         id: id,
         colour: activeUsers[id].colour,
@@ -62,36 +79,72 @@ app.get('/scores', function (req, res) {
 
 app.use(express.static(__dirname + '/public'));
 
-server.listen(process.env.PORT || 8000);
+server.listen(port);
 
 // -------------- PRIMUS ----------------
 
-var redisURL = url.parse(process.env.REDISCLOUD_URL || 'localhost:1234');
-
 var primus = new Primus(server, {
   transformer: 'websockets',
-  cluster: {
-    redis: {
-      port: redisURL.port,
-      host: redisURL.hostname,
-      connect_timeout: 200
-    }
-  }
+  cluster: 10,
+  redis: redis,
 });
 
-primus.use('emit', require('primus-emit'));
 primus.use('spark-latency', require('primus-spark-latency'));
-primus.use('cluster', require('primus-cluster'));
+primus.use('metroplex', require('metroplex'));
+primus.use('omega-supreme', require('omega-supreme'));
+primus.use('emit', require('primus-emit'));
+
+var Socket = primus.Socket;
+var client = new Socket('http://localhost:' + port);
 
 // use cookie and cookie-session middleware
 primus.before('cookies', cookies);
 primus.before('session', session);
+
+client.on('user', function (data) {
+  if (!activeUsers[data.id]) {
+    activeUsers[data.id] = data;
+  }
+});
+
+client.on('remove', function (data) {
+  if (activeUsers[data.id]) {
+    delete activeUsers[data.id];
+  }
+});
+
+client.on('sendScoreboard', function (data) {
+  redis.get('activeUsers', function (err, data) {
+    activeUsers = JSON.parse(data || '{}');
+
+    broadcast('scoreboard', {
+      scores: Object.keys(activeUsers).map(function (user) {
+        return {
+          id: user,
+          score: activeUsers[user].score
+        };
+      })
+    });
+  });
+});
+
 
 function broadcast(type, message, ignore) {
   if (!ignore) {
     ignore = {};
   }
 
+  primus.metroplex.servers(function (err, servers) {
+    servers.forEach(function (server) {
+      primus.forward(server, {
+        emit: [type, message]
+      }, function (err, data) {
+        // console.log.apply(console, [].slice.apply(arguments));
+      });
+    });
+  });
+
+  // note that the primus forward will handle this for us
   primus.forEach(function (spark) {
     if (spark.id === ignore.id) {
       return;
@@ -105,18 +158,13 @@ function updateCount() {
 }
 
 function sendScores() {
-  primus.forEach(function (spark) {
-    if (spark.request.session.wantsScores) {
-      spark.emit('scoreboard', {
-        scores: Object.keys(activeUsers).map(function (user) {
-          return {
-            id: user,
-            score: activeUsers[user].score
-          };
-        })
-      });
-    }
+  setActiveUsers(function () {
+    broadcast('sendScoreboard');
   });
+}
+
+function setActiveUsers(fn) {
+  redis.set('activeUsers', JSON.stringify(activeUsers), fn || function () {});
 }
 
 var pendingReconnectFrom = {};
@@ -137,6 +185,7 @@ primus.on('connection', function(spark) {
   } else if (activeUsers[user]) {
     // update the spark pointer
     activeUsers[user].sparkId = spark.id;
+    setActiveUsers();
   }
 
   updateCount();
@@ -145,6 +194,7 @@ primus.on('connection', function(spark) {
     pendingReconnectFrom[user] = setTimeout(function () {
       if (user) {
         delete activeUsers[user];
+        setActiveUsers();
         broadcast('remove', user, spark);
         updateCount();
       }
@@ -172,7 +222,12 @@ primus.on('connection', function(spark) {
 
         activeUsers[id].colour = colours();
         broadcast('colour', { colour: activeUsers[id].colour, id: id });
-        primus.spark(activeUsers[id].sparkId).emit('warning', 'You got hit - so your colour has changed!');
+
+        primus.metroplex.spark(activeUsers[id].sparkId, function (err, server) {
+          primus.forward(server, {
+            emit: ['warning', 'You got hit - so your colour has changed!']
+          }, activeUsers[id].sparkId, function (err, data) {});
+        });
       }
 
       else {
@@ -226,11 +281,12 @@ primus.on('connection', function(spark) {
         colour: req.session.colour,
         score: 0,
       };
-      images[user] = lzString.decompressFromUTF16(data.compressed);
+      // images[user] = lzString.decompressFromUTF16(data.compressed);
     }
 
     broadcast('user', activeUsers[user], spark);
     spark.emit('colour', { id: user, colour: activeUsers[user].colour });
+    setActiveUsers();
     updateCount();
   });
 
